@@ -38,24 +38,39 @@ public class AppSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public SecurityFilterChain securityConfig(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())  // Disable CSRF
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(
-                                        "/api/v1/auth/register",
-                                        "/v3/api-docs/**",
-                                        "/api/v1/auth/login",
-                                        "/swagger-ui/**",
-                                        "/swagger-ui.html",
-                                        "/swagger-resources/**",
-                                        "/webjars/**").permitAll()
-                                .anyRequest().authenticated()
-                );
+//    @Bean
+//    public SecurityFilterChain securityConfig(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable())  // Disable CSRF
+//                .authorizeHttpRequests(auth ->
+//                        auth.requestMatchers(
+//                                        "/api/v1/auth/register",
+//                                        "/v3/api-docs/**",
+//                                        "/api/v1/auth/login",
+//                                        "/swagger-ui/**",
+//                                        "/swagger-ui.html",
+//                                        "/swagger-resources/**",
+//                                        "/webjars/**").permitAll()
+//                                .anyRequest().authenticated()
+//                );
+//
+//        return http.build();
+//    }
 
-        return http.build();
+    @Bean
+    public SecurityFilterChain securityConfig(HttpSecurity http) throws Exception{
+
+        http.authorizeHttpRequests( req -> {
+            req.requestMatchers(publicEndpoints)
+                    .permitAll()
+                    .requestMatchers("/api/v1/admin/welcome").hasRole("USER")
+                    .anyRequest()
+                    .authenticated();
+        });
+
+        return http.csrf(csrf->csrf.disable()).build();
     }
+
 
     @Bean
     public AuthenticationManager authManager(AuthenticationConfiguration config) throws Exception {
